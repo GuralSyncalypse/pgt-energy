@@ -31,6 +31,7 @@ let shuttingDown = false;
 let consecutiveProxyFailures = 0;
 let circuitOpenUntil = 0;
 let probeInFlight = false;
+let probeResetTimer = null;
 const updateAttempts = new Map();
 
 function clientAddress(req) {
@@ -106,15 +107,33 @@ function sanitizeUpstreamHeaders(proxyRes) {
     proxyRes.headers["set-cookie"] = cookies.map((cookie) => cookie.replace(/;\s*domain=\.?[a-z0-9-]+\.trycloudflare\.com/gi, `; Domain=${PUBLIC_HOST}`));
   }
 }
+function clearProbe() {
+  if (probeResetTimer) {
+    clearTimeout(probeResetTimer);
+    probeResetTimer = null;
+  }
+  probeInFlight = false;
+}
+
+function startProbe() {
+  clearProbe();
+  probeInFlight = true;
+  probeResetTimer = setTimeout(() => {
+    probeResetTimer = null;
+    probeInFlight = false;
+    console.warn("[gateway] probe timed out; allowing another probe");
+  }, PROXY_TIMEOUT_MS + 1_000);
+  probeResetTimer.unref();
+}
 function resetUpstreamHealth() {
   consecutiveProxyFailures = 0;
   circuitOpenUntil = 0;
-  probeInFlight = false;
+  clearProbe();
 }
 
 function markUpstreamFailure() {
   consecutiveProxyFailures += 1;
-  probeInFlight = false;
+  clearProbe();
 
   if (consecutiveProxyFailures >= CIRCUIT_FAILURE_THRESHOLD || circuitOpenUntil > 0) {
     circuitOpenUntil = Date.now() + CIRCUIT_COOLDOWN_MS;
@@ -127,7 +146,7 @@ function canProxy() {
   if (!circuitOpenUntil) return true;
   if (Date.now() < circuitOpenUntil) return false;
   if (probeInFlight) return false;
-  probeInFlight = true;
+  startProbe();
   return true;
 }
 // Liveness only: the Node process can accept requests.
@@ -182,7 +201,7 @@ const odooProxy = createProxyMiddleware({
     proxyReqWs: setForwardedHeaders,
     proxyRes: (proxyRes) => {
       sanitizeUpstreamHeaders(proxyRes);
-      // Cloudflare uses 520–530 when the Quick Tunnel cannot reach its origin.
+      // Cloudflare uses 520â€“530 when the Quick Tunnel cannot reach its origin.
       if (proxyRes.statusCode >= 520 && proxyRes.statusCode <= 530) {
         markUpstreamFailure();
         return;
