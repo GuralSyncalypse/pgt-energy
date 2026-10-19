@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@source "../public/admin.html";
+@source "../public/admin.js";
+@source "../views/unavailable.html";
+
+@theme {
+  --color-surface: #0f1419;
+  --color-panel: #161d26;
+  --color-line: #2a3542;
+  --color-ink: #e6edf3;
+  --color-muted: #8b98a5;
+}
