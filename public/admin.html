@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Gateway Admin</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="m-0 grid min-h-screen place-items-center bg-surface p-6 text-ink antialiased">
+  <main class="w-full max-w-2xl rounded-2xl border border-line bg-panel p-7 shadow-2xl shadow-black/40">
+    <header class="mb-6">
+      <h1 class="m-0 mb-1 text-[22px] font-semibold tracking-tight">Gateway Admin</h1>
+      <p class="m-0 text-[13px] text-muted" id="public-host"></p>
+    </header>
+
+    <p id="host-warning" class="mb-5 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-[13px] text-amber-400" role="alert" hidden></p>
+
+    <section id="auth-section">
+      <label for="token" class="mb-1.5 block text-[13px] text-muted">Admin token</label>
+      <div class="flex flex-wrap gap-2.5">
+        <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Paste ADMIN_TOKEN or UPDATE_TOKEN"
+          class="min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 py-2.5 text-ink outline-none transition placeholder:text-muted/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40">
+        <button id="login" type="button"
+          class="rounded-lg bg-blue-500 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50">Connect</button>
+      </div>
+      <p class="mt-2 text-xs text-muted">The token is stored in this tab's sessionStorage only.</p>
+    </section>
+
+    <section id="dashboard-section" hidden>
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <span id="ready-badge" class="rounded-full px-3 py-1 text-[13px] font-semibold">…</span>
+        <div class="flex gap-3.5">
+          <button id="refresh" type="button" class="bg-transparent p-0 text-[13px] text-muted underline transition hover:text-ink">Refresh</button>
+          <button id="logout" type="button" class="bg-transparent p-0 text-[13px] text-muted underline transition hover:text-ink">Sign out</button>
+        </div>
+      </div>
+
+      <dl class="mb-6 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Upstream</dt>
+          <dd id="upstream" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Circuit breaker</dt>
+          <dd id="circuit" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Consecutive failures</dt>
+          <dd id="failures" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Uptime</dt>
+          <dd id="uptime" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Upstream changed at</dt>
+          <dd id="upstream-updated-at" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+        <div class="rounded-lg border border-line px-3 py-2.5">
+          <dt class="text-xs text-muted">Last checked</dt>
+          <dd id="checked-at" class="mt-1 break-words text-sm font-semibold">—</dd>
+        </div>
+      </dl>
+
+      <form id="update-form">
+        <label for="url" class="mb-1.5 block text-[13px] text-muted">Quick Tunnel URL</label>
+        <input id="url" type="url" required placeholder="https://xxxx.trycloudflare.com"
+          class="mb-3 w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-ink outline-none transition placeholder:text-muted/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40">
+        <div class="flex flex-wrap gap-2.5">
+          <button type="submit"
+            class="rounded-lg bg-blue-500 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50">Update upstream</button>
+          <button id="copy" type="button" disabled
+            class="rounded-lg border border-line bg-transparent px-4 py-2.5 font-semibold text-ink transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50">Copy upstream</button>
+          <button id="clear" type="button"
+            class="rounded-lg bg-red-500 px-4 py-2.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50">Clear upstream</button>
+        </div>
+      </form>
+    </section>
+
+    <p id="message" class="mt-4 min-h-[22px] text-[13px]" role="status" aria-live="polite"></p>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>
