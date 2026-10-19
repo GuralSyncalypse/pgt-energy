@@ -1,6 +1,6 @@
-const crypto = require("crypto");
-const express = require("express");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+import crypto from "node:crypto";
+import express from "express";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
 app.disable("x-powered-by");
